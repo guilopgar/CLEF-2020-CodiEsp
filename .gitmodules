@@ -1,0 +1,3 @@
+[submodule "resources/CodiEsp-Evaluation-Script"]
+	path = resources/CodiEsp-Evaluation-Script
+	url = https://github.com/TeMU-BSC/CodiEsp-Evaluation-Script.git
