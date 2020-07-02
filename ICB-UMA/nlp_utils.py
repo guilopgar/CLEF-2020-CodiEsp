@@ -198,14 +198,14 @@ def heur_create_frag_input_data(df_text, text_col, df_ann, doc_list, tokenizer, 
     indices, segments, labels, fragments, start_end_offsets = [], [], [], [], []
     for doc in tqdm(doc_list):
         # Extract doc annotation
-        doc_ann = df_ann[df_ann["doc_id"] == doc].sort_values(by=["start", "end"]) # sort by start and end offset when implementing heuristic
+        doc_ann = df_ann[df_ann["doc_id"] == doc].sort_values(by=["start", "end"])
         # Tokenize doc text into a list of sub-tokens and generate start-end offset for each sub-token
         doc_token, doc_start_end = start_end_tokenize(text=df_text[df_text["doc_id"] == doc][text_col].values[0], 
                                                       token_dict=tokenizer._token_dict)
-        # Split the list of sub-tokens (sample) into fragments, and convert sub-token fragments into indices & segments
-        n_frag = 0
+        # Split the list of sub-tokens (doc) into fragments, and convert sub-token fragments into indices & segments
         # Also, associate to each fragment the labels (codes) from the NER-annotations exclusively occurring inside 
         # the fragment
+        n_frag = 0
         ann_sup = 0
         ann_prev = 0
         for i in range(0, len(doc_token), seq_len-2):
@@ -234,13 +234,10 @@ def heur_create_frag_input_data(df_text, text_col, df_ann, doc_list, tokenizer, 
         # Store the number of fragments of each doc text
         fragments.append(n_frag)
         
-    # Indices & Segments shape: n_doc*n_frag x seq_len, where n_frag vary for each sample (doc)
-    # Labels shape: n_doc*n_frag x n_classes
-    # Fragments shape: n_doc
     return np.array(indices), np.array(segments), lab_encoder.transform(labels), np.array(fragments), start_end_offsets
 
 
-# As all abstracts have one single fragment, text-classiification method is compatible with NER method to generate data
+# As all abstracts have one single fragment, the next method is compatible with NER method (previous function) to generate data
 
 def create_frag_input_data(df_text, text_col, df_label, doc_list, tokenizer, lab_encoder, seq_len):
     indices, segments, labels, fragments = [], [], [], []
@@ -249,7 +246,7 @@ def create_frag_input_data(df_text, text_col, df_label, doc_list, tokenizer, lab
         doc_labels = list(df_label[df_label["doc_id"] == doc]["code"])
         # Tokenize doc text into a list of tokens
         doc_token = tokenizer._tokenize(df_text[df_text["doc_id"] == doc][text_col].values[0])
-        # Split the list of tokens (sample) into fragments, and convert token fragments into indices & segments
+        # Split the list of tokens (doc) into fragments, and convert token fragments into indices & segments
         n_frag = 0
         for i in range(0, len(doc_token), seq_len-2):
             n_frag += 1
@@ -258,12 +255,10 @@ def create_frag_input_data(df_text, text_col, df_label, doc_list, tokenizer, lab
             indices.append(frag_id)
             segments.append(frag_seg)
             labels.append(doc_labels)
-            # Store the number of fragments of each doc text
+        
+        # Store the number of fragments of each doc text
         fragments.append(n_frag)
         
-    # Indices & Segments shape: n_doc*n_frag x seq_len, where n_frag vary for each sample (doc)
-    # Labels shape: n_doc*n_frag x n_classes
-    # Fragments shape: n_doc
     return np.array(indices), np.array(segments), lab_encoder.transform(labels), np.array(fragments)
 
 
