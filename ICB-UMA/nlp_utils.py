@@ -112,6 +112,10 @@ def word_piece_tokenize(word, token_dict):
 
 def start_end_tokenize(text, token_dict, cased=True):
     """
+    Our aim is to produce both a list of sub-tokens and a list of tuples containing the start and
+    end char positions of each sub-token. All sub-tokens from the same word are assigned
+    the same start and end positions, i.e. the positions of the word where they come from.
+    
     Code adapted from: https://github.com/CyberZHG/keras-bert/blob/master/keras_bert/tokenizer.py#L101
     """
     
